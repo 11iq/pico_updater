@@ -4,8 +4,8 @@ if [ "$EUID" -ne 0 ]
   exit
 fi
 
-KLIPPER_PATH=/home/user/klipper/
-PICOTOOL_PATH=/home/user/picotool/build/picotool
+KLIPPER_PATH=<path_to_klipper_folder>
+PICOTOOL_PATH=<path_to_picotool_binary>
 
 #check if picotool is installed
 if [ ! -f $PICOTOOL_PATH ]; then
