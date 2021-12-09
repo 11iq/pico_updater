@@ -23,7 +23,7 @@ fi
 #cmake ..
 #make -j8
 
-#create udev rule for pico and reload udevadm
+#create udev rule for pico and reload udev
 cat << EOF > /etc/udev/rules.d/99-pico.rules
 SUBSYSTEM=="tty", ATTRS{product}=="rp2040",
 SYMLINK+="pico"
