@@ -1,16 +1,16 @@
 #!/bin/bash
 if [ "$EUID" -ne 0 ]
   then echo "Run script with sudo, exiting..."
-  exit
+  kill -INT $$
 fi
 
-KLIPPER_PATH=<path_to_klipper_folder>
-PICOTOOL_PATH=<path_to_picotool_binary>
+KLIPPER_PATH=#<path_to_klipper_folder>
+PICOTOOL_PATH=#<path_to_picotool_binary>
 
 #check if picotool is installed
-if [ ! -f $PICOTOOL_PATH ]; then
+if [ ! -f "$PICOTOOL_PATH" ]; then
    echo "picotool is not installed, install from https://github.com/raspberrypi/picotool"
-   exit
+   kill -INT $$
 fi  
 
 #pico-sdk and picotool install notes
@@ -36,22 +36,25 @@ else
 fi
 
 #build pico fw
-cd $KLIPPER_PATH
-make clean KCONFIG_CONFIG=fw.pico
-make menuconfig KCONFIG_CONFIG=fw.pico
-make KCONFIG_CONFIG=fw.pico
-
+if [ ! -d "$KLIPPER_PATH" ]; then
+  kill -INT $$
+else
+  cd "$KLIPPER_PATH" || kill -INT $$
+  make clean KCONFIG_CONFIG=fw.pico
+  make menuconfig KCONFIG_CONFIG=fw.pico
+  make KCONFIG_CONFIG=fw.pico
+fi
 #find pico
 pico=$(udevadm info /dev/ttyACM* | grep -C5 rp2040 | grep DEVNAME | cut -d "=" -f2)
 #mount pico fs
-stty -F $pico 1200
+stty -F "$pico" 1200
 func_fs () { readlink -f /dev/pico; }
 fs=$(func_fs)
 echo waiting for fs
 while [[ "$fs" != *"1"* ]]; do sleep 0.1; done
-mount $fs -t vfat -o x-mount.mkdir /mnt/pico
+mount "$fs" -t vfat -o x-mount.mkdir /mnt/pico
 echo copying firmware to pico
-cp $KLIPPER_PATH/out/klipper.uf2 /mnt/pico
+cp "$KLIPPER_PATH"/out/klipper.uf2 /mnt/pico
 echo fw copied to pico, rebooting pico
 $PICOTOOL_PATH reboot
 sleep 5
