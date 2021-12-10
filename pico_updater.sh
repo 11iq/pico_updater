@@ -23,13 +23,17 @@ fi
 #cmake ..
 #make -j8
 
-#create udev rule for pico and reload udev
-cat << EOF > /etc/udev/rules.d/99-pico.rules
+#create udev rule for pico and reload udevadm
+if [ ! -s /etc/udev/rules.d/99-pico.rules ]; then
+  cat << EOF > /etc/udev/rules.d/99-pico.rules
 SUBSYSTEM=="tty", ATTRS{product}=="rp2040",
 SYMLINK+="pico"
 EOF
-udevadm control --reload
-echo udev rule for pico added and reloaded
+  udevadm control --reload
+  echo udev rule for pico added and reloaded
+else
+  echo udev rule already exists, skipping...
+fi
 
 #build pico fw
 cd $KLIPPER_PATH
