@@ -1,16 +1,15 @@
 #!/bin/bash
+#colors
+RED="\e[31m"
+GREEN="\e[32m"
+YELLOW="\e[33m"
+ENDCOLOR="\e[0m"
 if [ "$EUID" -ne 0 ]
   then echo -e "${RED}Run script with sudo, exiting...${ENDCOLOR}"
   kill -INT $$
 fi
 
 cleanup () { (umount /mnt/pico; rm -rf /mnt/pico; rm /dev/pico; unset pico; unset fs; kill -INT $$) &>/dev/null; }
-
-#colors
-RED="\e[31m"
-GREEN="\e[32m"
-YELLOW="\e[33m"
-ENDCOLOR="\e[0m"
 
 KLIPPER_PATH=#<path_to_klipper_folder>
 PICOTOOL_BIN_PATH=#<path_to_picotool_binary>
