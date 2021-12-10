@@ -37,9 +37,10 @@ fi
 
 #build pico fw
 if [ ! -d "$KLIPPER_PATH" ]; then
+  echo KLIPPER_PATH is not set correctly, exiting...
   kill -INT $$
 else
-  cd "$KLIPPER_PATH" || kill -INT $$
+  cd "$KLIPPER_PATH"
   make clean KCONFIG_CONFIG=fw.pico
   make menuconfig KCONFIG_CONFIG=fw.pico
   make KCONFIG_CONFIG=fw.pico
