@@ -41,7 +41,6 @@ make KCONFIG_CONFIG=fw.pico
 pico=$(udevadm info /dev/ttyACM* | grep -C5 rp2040 | grep DEVNAME | cut -d "=" -f2)
 #mount pico fs
 stty -F $pico 1200
-sleep 5
 func_fs () { readlink -f /dev/pico; }
 fs=$(func_fs)
 echo waiting for fs
