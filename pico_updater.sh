@@ -9,7 +9,7 @@ if [ "$EUID" -ne 0 ]
   kill -INT $$
 fi
 
-cleanup () { (umount /mnt/pico; rm -rf /mnt/pico; rm /dev/pico; unset pico; unset fs; kill -INT $$) &>/dev/null; }
+cleanup () { (umount /mnt/pico; rm -rf /mnt/pico; unset pico; unset fs; kill -INT $$) &>/dev/null; }
 
 KLIPPER_PATH=#<path_to_klipper_folder>
 PICOTOOL_BIN_PATH=#<path_to_picotool_binary>
@@ -41,7 +41,7 @@ fi
 if pico=$(find /dev/serial/by-id/ -name "*rp2040*" 2>/dev/null); then
   echo -e "${GREEN}Pico found: $pico, continuing...${ENDCOLOR}"
 elif pico_bootsel=$(udevadm info /dev/pico 2>/dev/null); then
-  pico=$(echo "$pico_bootsel" | grep ACM)
+  pico=$(echo "$pico_bootsel" | grep "ID_FS_USAGE=filesystem" )
   echo -e "${RED}Pico found in BOOTSEL mode, rebooting pico...${ENDCOLOR}"
   $PICOTOOL_BIN_PATH reboot
   sleep 5
@@ -54,7 +54,8 @@ fi
 #create udev rule for pico and reload udevadm
 if [ ! -s /etc/udev/rules.d/99-pico.rules ]; then
   cat << EOF > /etc/udev/rules.d/99-pico.rules
-SUBSYSTEM=="tty", ATTRS{product}=="rp2040",SYMLINK+="pico"
+SUBSYSTEM=="tty", ATTRS{product}=="rp2040",
+SYMLINK+="pico"
 EOF
   udevadm control --reload
   echo -e "${GREEN}udev rule for pico added and reloaded, continuing...${ENDCOLOR}"
@@ -107,7 +108,7 @@ while ! [[ "$fs" =~ $rgx ]]; do func_fs; sleep 0.5; done
 mount "$fs" -t vfat -o x-mount.mkdir /mnt/pico
 if cp "$KLIPPER_PATH"/out/klipper.uf2 /mnt/pico; then
   echo -e "${GREEN}FW copied to pico, waiting for pico to reboot...${ENDCOLOR}"
-  umount /mnt/pico
+  cleanup
   while [ ! -e "$pico" ]; do sleep 0.1; done
   echo -e "${GREEN}Pico booted: $pico, exiting...${ENDCOLOR}"
 else
