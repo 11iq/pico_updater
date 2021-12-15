@@ -40,8 +40,7 @@ fi
 #find pico
 if pico=$(find /dev/serial/by-id/ -name "*rp2040*" 2>/dev/null); then
   echo -e "${GREEN}Pico found: $pico, continuing...${ENDCOLOR}"
-elif pico_bootsel=$(udevadm info /dev/pico 2>/dev/null); then
-  pico=$(echo "$pico_bootsel" | grep "ID_FS_USAGE=filesystem" )
+elif [ -e /dev/disk/by-label/RPI-RP2 ]; then
   echo -e "${RED}Pico found in BOOTSEL mode, rebooting pico...${ENDCOLOR}"
   $PICOTOOL_BIN_PATH reboot
   sleep 5
@@ -101,7 +100,7 @@ make -j"$(($(nproc)+1))" KCONFIG_CONFIG=fw.pico &>/dev/null
 if ! stty -F "$pico" 1200; then
   echo -e "${RED}error with BOOTSEL, exiting...${ENDCOLOR}"; cleanup
 fi
-func_fs () { fs=$(readlink -f /dev/pico);export fs;}
+func_fs () { fs=$(readlink -f /dev/disk/by-label/RPI-RP2);export fs;}
 echo -e "${YELLOW}waiting for fs...${ENDCOLOR}"
 rgx="/dev/sd[a-zA-Z]1"
 while ! [[ "$fs" =~ $rgx ]]; do func_fs; sleep 0.5; done
