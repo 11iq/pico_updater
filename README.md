@@ -1,4 +1,4 @@
-Automated pico firmware updater
+Automated pico klipper firmware updater
 
 1. Set variables in script
 
